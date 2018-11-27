@@ -3,7 +3,8 @@ import os
 from collections import defaultdict
 from random import sample
 
-HPO_FILE = "/cluster/u/cdeisser/ncbi/dbGaP-5695/matching/hpo/phenotypes/latest/hp.obo"
+#HPO_FILE = "/cluster/u/cdeisser/ncbi/dbGaP-5695/matching/hpo/phenotypes/latest/hp.obo"
+HPO_FILE = sys.argv[1]
 PHENOTYPIC_ABNORMALITY_ID = "HP:0000118"
 
 def print_hpo():

@@ -1,3 +1,9 @@
+#Getting started on a mac:
+##Double-click "GET_STARTED.command"
+
+#Getting started on a non-mac:
+##Double-click "GET_STARTED.sh.x"
+
 #Running the ClinPhen GUI on a mac:
 ##Double-click ClinPhen.command
 
