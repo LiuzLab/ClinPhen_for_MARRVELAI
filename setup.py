@@ -5,8 +5,8 @@ with open("README.md", "r") as fh:
     
 setuptools.setup(
     name='clinphen',
-    version='1.0',
-    scripts=['ClinPhen.command', 'ClinPhen.sh.x', 'ClinPhen.sh', 'ClinPhen_commandline.py', 'get_phenotypes.py', 'interface.py', 'prep_thesaurus.py', 'umls_thesaurus_extraction.sh', 'umlshelp.py', 'data/BUILD'] ,
+    version='1.2',
+    scripts=['GET_STARTED.sh', 'GET_STARTED.sh.x', 'GET_STARTED.command', 'ClinPhen.command', 'ClinPhen.sh.x', 'ClinPhen.sh', 'ClinPhen_commandline.py', 'get_phenotypes.py', 'interface.py', 'prep_thesaurus.py', 'umls_thesaurus_extraction.sh', 'umlshelp.py', 'data/BUILD'] ,
     #scripts=['data/BUILD']
     author="Cole A. Deisseroth",
     author_email="cdeisser@stanford.edu",
