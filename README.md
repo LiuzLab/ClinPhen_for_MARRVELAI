@@ -1,3 +1,9 @@
+#Getting started on the command line:
+##Open the terminal
+##cd into the clinphen directory
+##Run the following command:
+./GET_STARTED
+
 #Getting started on a mac:
 ##Double-click "GET_STARTED.command"
 

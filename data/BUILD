@@ -2,10 +2,17 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 curl https://files.pythonhosted.org/packages/6f/ed/9c755d357d33bc1931e157f537721efb5b88d2c583fe593cc09603076cc3/nltk-3.4.zip > $DIR/nltk-3.4.zip
 unzip $DIR/nltk-3.4.zip -d $DIR
+
+if [ -d "$DIR/../nltk" ]; then
+  rm -r $DIR/../nltk
+fi
 mv $DIR/nltk-3.4/nltk/ $DIR/../
 rm -r $DIR/nltk-3.4/
 rm $DIR/nltk-3.4.zip
 
+if [ -d "$DIR/../nltk_data" ]; then
+  rm -r $DIR/../nltk_data
+fi
 mkdir $DIR/../nltk_data
 mkdir $DIR/../nltk_data/corpora
 curl https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/corpora/wordnet.zip > $DIR/../nltk_data/corpora/wordnet.zip
