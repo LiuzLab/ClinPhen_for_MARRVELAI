@@ -7,7 +7,6 @@ from collections import defaultdict
 import nltk
 from nltk import word_tokenize
 from nltk.stem import WordNetLemmatizer
-from nltk.corpus import stopwords
 import re
 
 DEFAULT_HPO_SYN_MAP_FILE = os.path.dirname(__file__) + "/data/hpo_synonyms.txt"
@@ -19,7 +18,6 @@ PHENOTYPIC_ABNORMALITY_ID = "HP:0000118"
 def lemmatize(word):
   word = re.sub('[^0-9a-zA-Z]+', '', word)
   word = word.lower()
-  #if word in stopwords.words('english'): return ""
   return WordNetLemmatizer().lemmatize(word)
 
 #Returns a map from an HPO ID to the full list of its synonymous names
