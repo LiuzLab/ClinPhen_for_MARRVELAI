@@ -9,7 +9,8 @@ from nltk import word_tokenize
 from nltk.stem import WordNetLemmatizer
 import re
 
-DEFAULT_HPO_SYN_MAP_FILE = os.path.dirname(__file__) + "/data/hpo_synonyms.txt"
+DEFAULT_HPO_SYN_MAP_FILE = os.path.join(os.path.dirname(__file__), "data/hpo_synonyms.txt")
+assert os.path.isfile(DEFAULT_HPO_SYN_MAP_FILE), "Cannot find HPO syn file (have you run GET_STARTED?): {}".format(DEFAULT_HPO_SYN_MAP_FILE)
 HPO_SYN_MAP_FILE = DEFAULT_HPO_SYN_MAP_FILE
 #MAX_PHENOS = 4
 
@@ -21,7 +22,7 @@ def lemmatize(word):
   return WordNetLemmatizer().lemmatize(word)
 
 #Returns a map from an HPO ID to the full list of its synonymous names
-def load_all_hpo_synonyms():
+def load_all_hpo_synonyms(filename=HPO_SYN_MAP_FILE):
   returnMap = defaultdict(set)
   for line in open(HPO_SYN_MAP_FILE):
     lineData = line.strip().split("\t")
@@ -216,7 +217,7 @@ def sort_ids_by_occurrences_then_earliness(id_to_lines):
 
 #Extracts what this algorithm believes is the best set of phenotypes for the patient, and prints them out, line by line, in the following format:
 ##HPO ID	Name	Number of sentences the ID was found in	example sentence where it was found
-def extract_phenotypes(record, names):
+def extract_phenotypes(record, names, hpo_syn_file=HPO_SYN_MAP_FILE):
   safe_ID_to_lines = defaultdict(set)
   medical_record = load_medical_record_subsentences(record)
   medical_record_subsentences = []
@@ -235,7 +236,7 @@ def extract_phenotypes(record, names):
       medical_record_words.append(add_lemmas(alphanum_only(set([subsent]))))
       medical_record_flags.append(flags)
   mr_map = load_mr_map(medical_record_words)
-  syns = load_all_hpo_synonyms()
+  syns = load_all_hpo_synonyms(hpo_syn_file)
   for hpoID in syns.keys():
     for syn in syns[hpoID]:
       syn = re.sub('[^0-9a-zA-Z]+', ' ', syn.lower())
@@ -251,10 +252,10 @@ def extract_phenotypes(record, names):
         line = " ".join(medical_record_words[i])
         flagged = False
         for flag in medical_record_flags[i]:
-	  if flag not in synTokens:
-	    flagged = True
-	    break
-	if flagged: continue
+          if flag not in synTokens:
+            flagged = True
+            break
+        if flagged: continue
         safe_ID_to_lines[hpoID].add(i)
   safe_IDs = sort_ids_by_occurrences_then_earliness(safe_ID_to_lines)
   returnString = ["HPO ID\tPhenotype name\tNo. occurrences\tEarliness (lower = earlier)\tExample sentence"]

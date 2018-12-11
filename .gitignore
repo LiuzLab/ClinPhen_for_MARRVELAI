@@ -1,0 +1,4 @@
+*.pyc
+nltk_data/*
+nltk/*
+.vscode/*
