@@ -98,15 +98,15 @@ def main():
   # Aggregate each patient's subtables into a single per-patient table
   per_patient_tables = {}
   for patient, dataframes in patient_aggregator.items():
-    assert len(dataframes) > 0
-    if len(dataframes) == 1:
-      per_patient_tables[patient] = dataframes[0]
-    else:
-      per_patient_tables[patient] = pd.concat(dataframes)
+    assert dataframes
+    combined = pd.concat(dataframes)
+    combined.sort_values(by=['No. occurrences', 'Earliness (lower = earlier)'], ascending=False, inplace=True)
+    per_patient_tables[patient] = combined
   # Combine all the per-patient tables into one large table
   total_table = pd.concat(per_patient_tables.values())
+  total_table.sort_values(by=['patient_id'], inplace=True)
   # Write output
   total_table.to_csv(args.outfile, sep='\t', index=False)
 
 if __name__ == "__main__":
-  print(main())
+  main()
