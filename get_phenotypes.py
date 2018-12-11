@@ -24,7 +24,7 @@ def lemmatize(word):
 #Returns a map from an HPO ID to the full list of its synonymous names
 def load_all_hpo_synonyms(filename=HPO_SYN_MAP_FILE):
   returnMap = defaultdict(set)
-  for line in open(HPO_SYN_MAP_FILE):
+  for line in open(filename):
     lineData = line.strip().split("\t")
     hpo = lineData[0]
     syn = lineData[1]
