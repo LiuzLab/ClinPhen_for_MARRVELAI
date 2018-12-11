@@ -256,7 +256,7 @@ def extract_phenotypes(record, names, hpo_syn_file=HPO_SYN_MAP_FILE):
             flagged = True
             break
         if flagged: continue
-  safe_ID_to_lines[hpoID].add(i)
+        safe_ID_to_lines[hpoID].add(i)
   safe_IDs = sort_ids_by_occurrences_then_earliness(safe_ID_to_lines)
   returnString = ["HPO ID\tPhenotype name\tNo. occurrences\tEarliness (lower = earlier)\tExample sentence"]
   #returnString = []
