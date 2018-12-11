@@ -59,6 +59,15 @@ def _extract_phenotypes_wrapper(pat_record_tuple, names, hpo_syn_file=HPO_SYN_MA
   df.insert(0, 'patient_id', patient)  # Prepend patient column
   return patient, df
 
+def _df_combine_and_sort(dataframes):
+  """
+  Given a list of dataframes, combine and sort them
+  """
+  assert dataframes  # Cannot be an empty list
+  combined = pd.concat(dataframes)
+  combined.sort_values(by=['No. occurrences', 'Earliness (lower = earlier)'], ascending=False, inplace=True)
+  return combined
+
 def build_parser():
   """Build commandline parser"""
   parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -92,19 +101,16 @@ def main():
     patient, df = pair
     if not df.empty:  # Append if not empty
       patient_aggregator[patient].append(df)
+
+  # Aggregate each patient's subtables into a single per-patient table, in order
+  per_patient_dfs = pool.map(_df_combine_and_sort, (patient_aggregator[k] for k in sorted(patient_aggregator.keys())))  # Combine and sort each dataframe in parallel
+  # Combine all the per-patient tables into one large table
+  total_table = pd.concat(per_patient_dfs)
+
+  # Close the multiprocessing pool
   pool.close()
   pool.join()
 
-  # Aggregate each patient's subtables into a single per-patient table
-  per_patient_tables = {}
-  for patient, dataframes in patient_aggregator.items():
-    assert dataframes
-    combined = pd.concat(dataframes)
-    combined.sort_values(by=['No. occurrences', 'Earliness (lower = earlier)'], ascending=False, inplace=True)
-    per_patient_tables[patient] = combined
-  # Combine all the per-patient tables into one large table
-  total_table = pd.concat(per_patient_tables.values())
-  total_table.sort_values(by=['patient_id'], inplace=True)
   # Write output
   total_table.to_csv(args.outfile, sep='\t', index=False)
 
