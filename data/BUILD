@@ -20,6 +20,7 @@ unzip $DIR/../nltk_data/corpora/wordnet.zip -d $DIR/../nltk_data/corpora/
 rm $DIR/../nltk_data/corpora/wordnet.zip
 cat $DIR/../nltk/data.py | awk 'BEGIN {FS = "\t"} {if($1 == "path = []"){print $1 "\npath.append(\"'$DIR/../nltk_data'\")"} else{print}}' > $DIR/../tmp
 mv $DIR/../tmp $DIR/../nltk/data.py
+pip install six
 
 curl https://raw.githubusercontent.com/obophenotype/human-phenotype-ontology/master/hp.obo > $DIR/hp.obo
 python $DIR/../src/hpo_syns.py $DIR/hp.obo > $DIR/tmp
