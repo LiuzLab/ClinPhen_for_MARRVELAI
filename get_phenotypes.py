@@ -22,7 +22,7 @@ def lemmatize(word):
   return WordNetLemmatizer().lemmatize(word)
 
 #Returns a map from an HPO ID to the full list of its synonymous names
-def load_all_hpo_synonyms():
+def load_all_hpo_synonyms(filename=HPO_SYN_MAP_FILE):
   returnMap = defaultdict(set)
   for line in open(HPO_SYN_MAP_FILE):
     lineData = line.strip().split("\t")
@@ -217,7 +217,7 @@ def sort_ids_by_occurrences_then_earliness(id_to_lines):
 
 #Extracts what this algorithm believes is the best set of phenotypes for the patient, and prints them out, line by line, in the following format:
 ##HPO ID	Name	Number of sentences the ID was found in	example sentence where it was found
-def extract_phenotypes(record, names):
+def extract_phenotypes(record, names, hpo_syn_file=HPO_SYN_MAP_FILE):
   safe_ID_to_lines = defaultdict(set)
   medical_record = load_medical_record_subsentences(record)
   medical_record_subsentences = []
@@ -236,7 +236,7 @@ def extract_phenotypes(record, names):
       medical_record_words.append(add_lemmas(alphanum_only(set([subsent]))))
       medical_record_flags.append(flags)
   mr_map = load_mr_map(medical_record_words)
-  syns = load_all_hpo_synonyms()
+  syns = load_all_hpo_synonyms(hpo_syn_file)
   for hpoID in syns.keys():
     for syn in syns[hpoID]:
       syn = re.sub('[^0-9a-zA-Z]+', ' ', syn.lower())
