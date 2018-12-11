@@ -20,7 +20,7 @@
 ##Open the terminal
 ##cd to the ClinPhen directory
 ##Run the following command:
-sh ClinPhen.sh
+sh ClinPhen.command
 
 #Running ClinPhen directly on the command line:
 ##Open the terminal
