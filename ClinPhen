@@ -7,8 +7,9 @@ import os
 import argparse
 from get_phenotypes import *
 
-myDir = "/".join(os.path.realpath(__file__).split("/")[:-1])
-hpo_main_names = myDir + "/data/hpo_term_names.txt"
+myDir = os.path.dirname(os.path.realpath(__file__))
+hpo_main_names = os.path.join(myDir, "data/hpo_term_names.txt")
+assert os.path.isfile(hpo_main_names), "Cannot find HPO term names mapping file {}".format(hpo_main_names)
 
 def getNames():
   returnMap = {}
