@@ -63,6 +63,7 @@ def build_parser():
   """Build commandline parser"""
   parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument("recordfile", type=str, help="Tabular file containing records to parse")
+  parser.add_argument("outfile", type=str, help="Output tsv file")
   parser.add_argument("--delim", type=str, default="|", help="Delimiter in recordfile")
   parser.add_argument("--patcol", type=str, default='MRN', help="Column for patient identifiers. Should be integer if recordfile has no header")
   parser.add_argument("--notecol", type=str, default='NOTE', help="Column for notes. Should be integer of recordfile has no header")
@@ -104,7 +105,8 @@ def main():
       per_patient_tables[patient] = pd.concat(dataframes)
   # Combine all the per-patient tables into one large table
   total_table = pd.concat(per_patient_tables.values())
-  return total_table
+  # Write output
+  total_table.to_csv(args.outfile, sep='\t', index=False)
 
 if __name__ == "__main__":
   print(main())
