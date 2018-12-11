@@ -9,7 +9,8 @@ from nltk import word_tokenize
 from nltk.stem import WordNetLemmatizer
 import re
 
-DEFAULT_HPO_SYN_MAP_FILE = os.path.dirname(__file__) + "/data/hpo_synonyms.txt"
+DEFAULT_HPO_SYN_MAP_FILE = os.path.join(os.path.dirname(__file__), "data/hpo_synonyms.txt")
+assert os.path.isfile(DEFAULT_HPO_SYN_MAP_FILE), "Cannot find HPO syn file (have you run GET_STARTED?): {}".format(DEFAULT_HPO_SYN_MAP_FILE)
 HPO_SYN_MAP_FILE = DEFAULT_HPO_SYN_MAP_FILE
 #MAX_PHENOS = 4
 
