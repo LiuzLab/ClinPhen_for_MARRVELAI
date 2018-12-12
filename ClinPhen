@@ -77,9 +77,9 @@ def combine_table(tbl):
     name = row[1][2]
     occ = row[1][3]
     earl = row[1][4]
-    sent = row[1][5]
+    #sent = row[1][5]
     if hpo not in patient_to_pheno_to_row[patient].keys():
-      patient_to_pheno_to_row[patient][hpo] = [patient, hpo, name, occ, earl, sent]
+      patient_to_pheno_to_row[patient][hpo] = [patient, hpo, name, occ, earl]
     else:
       patient_to_pheno_to_row[patient][hpo][3] += occ
       patient_to_pheno_to_row[patient][hpo][4] = min(patient_to_pheno_to_row[patient][hpo][4], earl)
@@ -91,7 +91,7 @@ def combine_table(tbl):
     row = returnList[i]
     for j in range(len(row)): row[j] = str(row[j])
     returnList[i] = "\t".join(row)
-  returnList.insert(0, '#Patient ID\tHPO ID\tPhenotype name\tNo. occurrences\tEarliness (lower = earlier)\tExample sentence')
+  returnList.insert(0, '#Patient ID\tHPO ID\tPhenotype name\tNo. occurrences\tEarliness (lower = earlier)')
   return returnList
 
 def build_parser():
