@@ -68,6 +68,29 @@ def _df_combine_and_sort(dataframes):
   combined.sort_values(by=['No. occurrences', 'Earliness (lower = earlier)'], ascending=False, inplace=True)
   return combined
 
+def combine_table(tbl):
+  patient_to_pheno_to_row = defaultdict(lambda: {})
+  returnList = []
+  returnList.append('#Patient ID\tHPO ID\tPhenotype name\tNo. occurrences\tEarliness (lower = earlier)\tExample sentence')
+  for row in tbl.iterrows():
+    patient = row[1][0]
+    hpo = row[1][1]
+    name = row[1][2]
+    occ = row[1][3]
+    earl = row[1][4]
+    sent = row[1][5]
+    if hpo not in patient_to_pheno_to_row[patient].keys():
+      patient_to_pheno_to_row[patient][hpo] = [patient, hpo, name, occ, earl, sent]
+    else:
+      patient_to_pheno_to_row[patient][hpo][3] += occ
+      patient_to_pheno_to_row[patient][hpo][4] = min(patient_to_pheno_to_row[patient][hpo][4], earl)
+  for patient in patient_to_pheno_to_row.keys():
+    for pheno in patient_to_pheno_to_row[patient].keys():
+      row = patient_to_pheno_to_row[patient][pheno]
+      for i in range(len(row)): row[i] = str(row[i])
+      returnList.append("\t".join(row))
+  return returnList
+
 def build_parser():
   """Build commandline parser"""
   parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -112,7 +135,10 @@ def main():
   pool.join()
 
   # Write output
-  total_table.to_csv(args.outfile, sep='\t', index=False)
+  returnTbl = combine_table(total_table)
+  outf = open(args.outfile, "w")
+  outf.write("\n".join(returnTbl))
+  outf.close()
 
 if __name__ == "__main__":
   main()
