@@ -123,7 +123,7 @@ def load_mr_map(parsed_record):
   return returnMap
 
 #Checks the given sentence for any flags from the lists you indicate.
-negative_flags = ["no", "not", "none", "negative", "non", "never", "without"]
+negative_flags = ["no", "not", "none", "negative", "non", "never", "without", "denies"]
 family_flags = ["cousin", "parent", "mom", "mother", "dad", "father", "grandmother", "grandfather", "grandparent", "family", "brother", "sister", "sibling", "uncle", "aunt", "nephew", "niece", "son", "daughter", "grandchild"]
 healthy_flags = ["normal"]
 disease_flags = ["associated", "gene", "recessive", "dominant", "variant", "cause", "literature", "individuals"]
