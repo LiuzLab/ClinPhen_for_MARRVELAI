@@ -71,7 +71,6 @@ def _df_combine_and_sort(dataframes):
 def combine_table(tbl):
   patient_to_pheno_to_row = defaultdict(lambda: {})
   returnList = []
-  returnList.append('#Patient ID\tHPO ID\tPhenotype name\tNo. occurrences\tEarliness (lower = earlier)\tExample sentence')
   for row in tbl.iterrows():
     patient = row[1][0]
     hpo = row[1][1]
@@ -86,9 +85,13 @@ def combine_table(tbl):
       patient_to_pheno_to_row[patient][hpo][4] = min(patient_to_pheno_to_row[patient][hpo][4], earl)
   for patient in patient_to_pheno_to_row.keys():
     for pheno in patient_to_pheno_to_row[patient].keys():
-      row = patient_to_pheno_to_row[patient][pheno]
-      for i in range(len(row)): row[i] = str(row[i])
-      returnList.append("\t".join(row))
+      returnList.append(patient_to_pheno_to_row[patient][pheno])
+  returnList.sort(key=(lambda x: (x[0], -1 * x[3], x[4], x[1])))
+  for i in range(len(returnList)):
+    row = returnList[i]
+    for j in range(len(row)): row[j] = str(row[j])
+    returnList[i] = "\t".join(row)
+  returnList.insert(0, '#Patient ID\tHPO ID\tPhenotype name\tNo. occurrences\tEarliness (lower = earlier)\tExample sentence')
   return returnList
 
 def build_parser():
