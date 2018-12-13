@@ -66,7 +66,7 @@ def _extract_phenotypes_wrapper(pat_record_tuple, names, hpo_syn_file=HPO_SYN_MA
   patient, record = pat_record_tuple  # Unpack
   str_result = extract_phenotypes(record, names, hpo_syn_file)
   df = pd.read_table(StringIO(str_result))  # Parse string return value as a dataframe
-  df.insert(0, 'patient_id', patient)  # Prepend patient column
+  df.insert(0, '#Patient ID', patient)  # Prepend patient column
   df.drop(columns=['Example sentence'], inplace=True)  # Drop the example sentence so we don't leak PHI
   return patient, df
 
@@ -77,39 +77,13 @@ def _df_combine_and_sort(dataframes):
   assert dataframes  # Cannot be an empty list
   combined = pd.concat(dataframes)
   # Merge together multiple observations of the same term
-  combined = combined.groupby(["patient_id", "HPO ID"]).agg({
+  combined = combined.groupby(["#Patient ID", "HPO ID", 'Phenotype name']).agg({
     'No. occurrences': 'sum',
     'Earliness (lower = earlier)': 'min',
   }, axis=0).reset_index()  # Combine rows
   # Num occurrences is sorted in descending order, earliness in ascending order
   combined.sort_values(by=['No. occurrences', 'Earliness (lower = earlier)'], ascending=[False, True], inplace=True)
   return combined
-
-def combine_table(tbl):
-  patient_to_pheno_to_row = defaultdict(lambda: {})
-  returnList = []
-  for row in tbl.iterrows():
-    patient = row[1][0]
-    hpo = row[1][1]
-    name = row[1][2]
-    occ = row[1][3]
-    earl = row[1][4]
-    #sent = row[1][5]
-    if hpo not in patient_to_pheno_to_row[patient].keys():
-      patient_to_pheno_to_row[patient][hpo] = [patient, hpo, name, occ, earl]
-    else:
-      patient_to_pheno_to_row[patient][hpo][3] += occ
-      patient_to_pheno_to_row[patient][hpo][4] = min(patient_to_pheno_to_row[patient][hpo][4], earl)
-  for patient in patient_to_pheno_to_row.keys():
-    for pheno in patient_to_pheno_to_row[patient].keys():
-      returnList.append(patient_to_pheno_to_row[patient][pheno])
-  returnList.sort(key=(lambda x: (x[0], -1 * x[3], x[4], x[1])))
-  for i in range(len(returnList)):
-    row = returnList[i]
-    for j in range(len(row)): row[j] = str(row[j])
-    returnList[i] = "\t".join(row)
-  returnList.insert(0, '#Patient ID\tHPO ID\tPhenotype name\tNo. occurrences\tEarliness (lower = earlier)')
-  return returnList
 
 def build_parser():
   """Build commandline parser"""
