@@ -67,6 +67,7 @@ def _extract_phenotypes_wrapper(pat_record_tuple, names, hpo_syn_file=HPO_SYN_MA
   str_result = extract_phenotypes(record, names, hpo_syn_file)
   df = pd.read_table(StringIO(str_result))  # Parse string return value as a dataframe
   df.insert(0, 'patient_id', patient)  # Prepend patient column
+  df.drop(columns=['Example sentence'], inplace=True)  # Drop the example sentence so we don't leak PHI
   return patient, df
 
 def _df_combine_and_sort(dataframes):
@@ -75,7 +76,13 @@ def _df_combine_and_sort(dataframes):
   """
   assert dataframes  # Cannot be an empty list
   combined = pd.concat(dataframes)
-  combined.sort_values(by=['No. occurrences', 'Earliness (lower = earlier)'], ascending=False, inplace=True)
+  # Merge together multiple observations of the same term
+  combined = combined.groupby(["patient_id", "HPO ID"]).agg({
+    'No. occurrences': 'sum',
+    'Earliness (lower = earlier)': 'min',
+  }, axis=0).reset_index()  # Combine rows
+  # Num occurrences is sorted in descending order, earliness in ascending order
+  combined.sort_values(by=['No. occurrences', 'Earliness (lower = earlier)'], ascending=[False, True], inplace=True)
   return combined
 
 def combine_table(tbl):
@@ -149,10 +156,7 @@ def main():
   pool.join()
 
   # Write output
-  returnTbl = combine_table(total_table)
-  outf = open(args.outfile, "w")
-  outf.write("\n".join(returnTbl))
-  outf.close()
+  total_table.to_csv(args.outfile, sep='\t', index=False)
 
 if __name__ == "__main__":
   logging.basicConfig(
