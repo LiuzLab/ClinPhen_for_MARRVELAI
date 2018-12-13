@@ -4,6 +4,8 @@ ClinPhen commandline.
 """
 import sys
 import os
+import logging
+import time
 import csv
 import collections
 from StringIO import StringIO
@@ -38,12 +40,20 @@ def yield_pat_notes_from_file(fname, patient_col, note_col, delimiter="|", heade
     patient_col = int(patient_col)
     note_col = int(note_col)
 
+  note_counter = 0
+  t_start = time.time()
   with open(fname, mode='r') as source:
     if header:  # Use a dict reader and index by column name if we have a header
       reader = csv.DictReader(source, delimiter=delimiter, quotechar='"', skipinitialspace=True, quoting=csv.QUOTE_ALL)
     else:  # Use a standard reader and index by numeric index if we do not have a header
       reader = csv.reader(source, delimiter=delimiter, quotechar='"', skipinitialspace=True, quoting=csv.QUOTE_ALL)
     for item in reader:
+      note_counter += 1
+      if note_counter % 1000 == 0:
+        t_delta = time.time() - t_start
+        rate = note_counter / t_delta
+        logging.info("{} total records consumed\t{} records per second".format(note_counter, rate))
+      
       yield item[patient_col], item[note_col]
   raise StopIteration
 
@@ -120,6 +130,7 @@ def main():
   pfunc = functools.partial(_extract_phenotypes_wrapper, names=hpo_to_name, hpo_syn_file=args.thesaurus)
 
   # https://stackoverflow.com/questions/26520781/multiprocessing-pool-whats-the-difference-between-map-async-and-imap
+  logging.info("Processing notes with {} threads".format(args.threads))
   pool = multiprocessing.Pool(args.threads)
   processed = pool.imap_unordered(pfunc, yield_pat_notes_from_file(args.recordfile, args.patcol, args.notecol, header=not args.noheader))  # Returns an iterable
   patient_aggregator = collections.defaultdict(list)
@@ -144,4 +155,9 @@ def main():
   outf.close()
 
 if __name__ == "__main__":
+  logging.basicConfig(
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S'
+  )
   main()
