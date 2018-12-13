@@ -4,6 +4,8 @@ ClinPhen commandline.
 """
 import sys
 import os
+import logging
+import time
 import csv
 import collections
 from StringIO import StringIO
@@ -38,12 +40,20 @@ def yield_pat_notes_from_file(fname, patient_col, note_col, delimiter="|", heade
     patient_col = int(patient_col)
     note_col = int(note_col)
 
+  note_counter = 0
+  t_start = time.time()
   with open(fname, mode='r') as source:
     if header:  # Use a dict reader and index by column name if we have a header
       reader = csv.DictReader(source, delimiter=delimiter, quotechar='"', skipinitialspace=True, quoting=csv.QUOTE_ALL)
     else:  # Use a standard reader and index by numeric index if we do not have a header
       reader = csv.reader(source, delimiter=delimiter, quotechar='"', skipinitialspace=True, quoting=csv.QUOTE_ALL)
     for item in reader:
+      note_counter += 1
+      if note_counter % 1000 == 0:
+        t_delta = time.time() - t_start
+        rate = note_counter / t_delta
+        logging.info("{} total records consumed\t{} records per second".format(note_counter, rate))
+      
       yield item[patient_col], item[note_col]
   raise StopIteration
 
@@ -56,7 +66,8 @@ def _extract_phenotypes_wrapper(pat_record_tuple, names, hpo_syn_file=HPO_SYN_MA
   patient, record = pat_record_tuple  # Unpack
   str_result = extract_phenotypes(record, names, hpo_syn_file)
   df = pd.read_table(StringIO(str_result))  # Parse string return value as a dataframe
-  df.insert(0, 'patient_id', patient)  # Prepend patient column
+  df.insert(0, '#Patient ID', patient)  # Prepend patient column
+  df.drop(columns=['Example sentence'], inplace=True)  # Drop the example sentence so we don't leak PHI
   return patient, df
 
 def _df_combine_and_sort(dataframes):
@@ -65,34 +76,14 @@ def _df_combine_and_sort(dataframes):
   """
   assert dataframes  # Cannot be an empty list
   combined = pd.concat(dataframes)
-  combined.sort_values(by=['No. occurrences', 'Earliness (lower = earlier)'], ascending=False, inplace=True)
+  # Merge together multiple observations of the same term
+  combined = combined.groupby(["#Patient ID", "HPO ID", 'Phenotype name']).agg({
+    'No. occurrences': 'sum',
+    'Earliness (lower = earlier)': 'min',
+  }, axis=0).reset_index()  # Combine rows
+  # Num occurrences is sorted in descending order, earliness in ascending order
+  combined.sort_values(by=['No. occurrences', 'Earliness (lower = earlier)'], ascending=[False, True], inplace=True)
   return combined
-
-def combine_table(tbl):
-  patient_to_pheno_to_row = defaultdict(lambda: {})
-  returnList = []
-  for row in tbl.iterrows():
-    patient = row[1][0]
-    hpo = row[1][1]
-    name = row[1][2]
-    occ = row[1][3]
-    earl = row[1][4]
-    #sent = row[1][5]
-    if hpo not in patient_to_pheno_to_row[patient].keys():
-      patient_to_pheno_to_row[patient][hpo] = [patient, hpo, name, occ, earl]
-    else:
-      patient_to_pheno_to_row[patient][hpo][3] += occ
-      patient_to_pheno_to_row[patient][hpo][4] = min(patient_to_pheno_to_row[patient][hpo][4], earl)
-  for patient in patient_to_pheno_to_row.keys():
-    for pheno in patient_to_pheno_to_row[patient].keys():
-      returnList.append(patient_to_pheno_to_row[patient][pheno])
-  returnList.sort(key=(lambda x: (x[0], -1 * x[3], x[4], x[1])))
-  for i in range(len(returnList)):
-    row = returnList[i]
-    for j in range(len(row)): row[j] = str(row[j])
-    returnList[i] = "\t".join(row)
-  returnList.insert(0, '#Patient ID\tHPO ID\tPhenotype name\tNo. occurrences\tEarliness (lower = earlier)')
-  return returnList
 
 def build_parser():
   """Build commandline parser"""
@@ -120,6 +111,7 @@ def main():
   pfunc = functools.partial(_extract_phenotypes_wrapper, names=hpo_to_name, hpo_syn_file=args.thesaurus)
 
   # https://stackoverflow.com/questions/26520781/multiprocessing-pool-whats-the-difference-between-map-async-and-imap
+  logging.info("Processing notes with {} threads".format(args.threads))
   pool = multiprocessing.Pool(args.threads)
   processed = pool.imap_unordered(pfunc, yield_pat_notes_from_file(args.recordfile, args.patcol, args.notecol, header=not args.noheader))  # Returns an iterable
   patient_aggregator = collections.defaultdict(list)
@@ -138,10 +130,12 @@ def main():
   pool.join()
 
   # Write output
-  returnTbl = combine_table(total_table)
-  outf = open(args.outfile, "w")
-  outf.write("\n".join(returnTbl))
-  outf.close()
+  total_table.to_csv(args.outfile, sep='\t', index=False)
 
 if __name__ == "__main__":
+  logging.basicConfig(
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S'
+  )
   main()
