@@ -103,6 +103,7 @@ def main():
   # Parse commandline arguments
   parser = build_parser()
   args = parser.parse_args()
+  csv.field_size_limit(sys.maxsize / args.threads)
 
   hpo_to_name = getNames()
 
