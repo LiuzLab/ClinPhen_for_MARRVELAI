@@ -1,33 +1,37 @@
-#Getting started on the command line:
-##Open the terminal
-##cd into the clinphen directory
-##Run the following command:
-./GET_STARTED
+#ClinPhen is a free-to-use tool that automatically extracts phenotypes from clinical notes.
+#PIP VERSION INSTRUCTIONS
+##To extract phenotypes:
+clinphen <path_to_clinincal_note_file>
 
-#Getting started on a mac:
-##Double-click "GET_STARTED.command"
+##To see how to use other features:
+clinphen -h
 
-#Getting started on a non-mac:
-##Double-click "GET_STARTED.sh.x"
+##We also have a version that parses phenotypes from a large table of notes. You can run it with:
+clinphen_bulk <path_to_table_file> <path_to_output_file>
 
+##The input file for clinphen_bulk, by default, is a 2-column table delimited by a "|" character. The first column is the patient identifier, the second is the note. It should have the following header:
+"MRN"|"NOTE"
+
+##To learn more, run:
+clinphen_bulk -h
+
+#STANDARD (NON-PIP) VERSION INSTRUCTIONS
 #Running the ClinPhen GUI on a mac:
-##Double-click ClinPhen.command
 
 #Running the ClinPhen GUI on a non-mac:
-##Double-click ClinPhen.sh.x
 
 #Running the ClinPhen GUI on the command line:
 ##Open the terminal
 ##cd to the ClinPhen directory
 ##Run the following command:
-sh ClinPhen.command
+./ClinPhenApp
 
 #Running ClinPhen directly on the command line:
 ##Open the terminal
 ##cd to the ClinPhen directory
 ##Run the following command:
-./ClinPhen input.txt
+./clinphen input.txt
 ##Replace "input.txt" with the path to the free-text clinical note file that you want to parse.
 ##You can also run the command line with a custom thesaurus:
-./ClinPhen input.txt thesaurus.txt
+./clinphen input.txt thesaurus.txt
 ##Replace "thesaurus.txt" with the path to your custom thesaurus, which should be in the format: HPO_ID<tab>Synonym
