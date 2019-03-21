@@ -48,11 +48,11 @@ def run_gui():
     global screenHeight
     global windowWidth
     ClinPhen = gui()
-    ClinPhen.setGeometry("fullscreen")
+    #ClinPhen.setGeometry("fullscreen")
 
     screenWidth = ClinPhen.topLevel.winfo_screenwidth()
     screenHeight = ClinPhen.topLevel.winfo_screenheight()
-    ClinPhen.setGeometry("fullscreen")
+    ClinPhen.setGeometry(int(screenWidth / 1.25), int(screenHeight / 1.25))
 
     ClinPhen.setStretch("both")
     ClinPhen.setSticky("nesw")
