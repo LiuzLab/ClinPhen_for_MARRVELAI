@@ -23,9 +23,9 @@ results = ""
 
 
 
-bigDiv = 30
-medDiv = 45
-smallDiv = 75
+bigDiv = 38
+medDiv = 57
+smallDiv = 95
 bigLabels = ["Title"]
 medLabels = ["pickThesaurusLabel", "giveRecordLabel", "extractLabel", "ResultsLabel", "saveLabel"]
 smallLabels = ["Description", "haveUMLS", "CustomThesaurusInstructions", "hpoDescription", 
@@ -99,7 +99,7 @@ def run_gui():
       global results
       terminalResults = results
       if ClinPhen.getRadioButton("phenoLimit") == "Top 4": terminalResults = "\n".join(terminalResults.split("\n")[:5])
-      if ClinPhen.getRadioButton("saveFormat") == "Comma-separated": pyperclip.copy(re.sub("\n", ",", terminalResults))
+      if ClinPhen.getRadioButton("saveFormat") == "Comma-separated": pyperclip.copy(re.sub("\t", ",", terminalResults))
       elif ClinPhen.getRadioButton("saveFormat") == "HPO ID list":
         HPO_IDs = []
         for line in terminalResults.split("\n"):
