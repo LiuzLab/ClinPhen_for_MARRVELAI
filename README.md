@@ -1,4 +1,6 @@
-#ClinPhen is a free-to-use tool that automatically extracts phenotypes from clinical notes.
+#ClinPhen is a tool that automatically extracts phenotypes from clinical notes.
+#ClinPhen is freely available for academic, nonprofit, and personal use. Please e-mail us with any licensing inquiries.
+
 #PIP VERSION INSTRUCTIONS
 ##To extract phenotypes:
 clinphen <path_to_clinincal_note_file>
