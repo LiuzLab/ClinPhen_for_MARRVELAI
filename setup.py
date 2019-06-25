@@ -35,7 +35,7 @@ setuptools.setup(
     url="http://bejerano.stanford.edu/clinphen/",
     packages=setuptools.find_packages() + ['clinphen_src'],
     include_package_data=True,
-    install_requires=['nltk==3.4', 'six==1.12.0', 'pandas==0.20.1'],
+    install_requires=['nltk>=3.4', 'six>=1.12.0', 'pandas>=0.20.1'],
     classifiers=[
          "Programming Language :: Python :: 2.7",
          "Operating System :: OS Independent",
