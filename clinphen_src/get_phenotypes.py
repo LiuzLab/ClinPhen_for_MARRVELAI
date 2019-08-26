@@ -19,7 +19,11 @@ PHENOTYPIC_ABNORMALITY_ID = "HP:0000118"
 def lemmatize(word):
   word = re.sub('[^0-9a-zA-Z]+', '', word)
   word = word.lower()
-  return WordNetLemmatizer().lemmatize(word)
+  try: return WordNetLemmatizer().lemmatize(word)
+  except LookupError:
+    nltk.download('wordnet')
+    return WordNetLemmatizer().lemmatize(word)
+
 
 #Returns a map from an HPO ID to the full list of its synonymous names
 def load_all_hpo_synonyms(filename=HPO_SYN_MAP_FILE):
