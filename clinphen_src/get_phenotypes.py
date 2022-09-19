@@ -221,7 +221,7 @@ def sort_ids_by_occurrences_then_earliness(id_to_lines):
 
 #Extracts what this algorithm believes is the best set of phenotypes for the patient, and prints them out, line by line, in the following format:
 ##HPO ID	Name	Number of sentences the ID was found in	example sentence where it was found
-def extract_phenotypes(record, names, hpo_syn_file=HPO_SYN_MAP_FILE):
+def extract_phenotypes(record, names, hpo_syn_file=HPO_SYN_MAP_FILE, noflags=False):
   safe_ID_to_lines = defaultdict(set)
   medical_record = load_medical_record_subsentences(record)
   medical_record_subsentences = []
@@ -233,7 +233,8 @@ def extract_phenotypes(record, names, hpo_syn_file=HPO_SYN_MAP_FILE):
     for subsent in subsents: whole_sentence += subsent + " "
     whole_sentence = whole_sentence.strip()
     whole_sentence = re.sub('[^0-9a-zA-Z]+', ' ', whole_sentence)
-    flags = get_flags(whole_sentence.split(" "), negative_flags, family_flags, healthy_flags, disease_flags, treatment_flags, history_flags, uncertain_flags, mild_flags)
+    if noflags: flags = set()
+    else: flags = get_flags(whole_sentence.split(" "), negative_flags, family_flags, healthy_flags, disease_flags, treatment_flags, history_flags, uncertain_flags, mild_flags)
     for subsent in subsents:
       medical_record_subsentences.append(subsent)
       subsent_to_sentence.append(whole_sentence)
